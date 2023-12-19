@@ -7,6 +7,7 @@ import {
     Image,
     TextInput,
     ActivityIndicator,
+    Alert,
 } from "react-native";
 import { EReportCategory } from "../../types/reports";
 import { http } from "../../config";
@@ -102,6 +103,53 @@ export default function Page() {
         }
     };
 
+    const getLocation = async () => {
+        try {
+            //? Get location of user
+            let location = await Location.getCurrentPositionAsync({});
+            let reversed = await Location.reverseGeocodeAsync({
+                latitude: location?.coords?.latitude,
+                longitude: location?.coords?.longitude,
+            });
+
+            if (
+                !reversed[0]?.street ||
+                !reversed[0]?.city ||
+                !reversed[0]?.region ||
+                !reversed[0]?.country
+            ) {
+                alert("Kan locatie niet ophalen");
+                router.replace("/");
+                return;
+            }
+
+            //? Set location & geoData
+            setLocation(location);
+            setGeoData(reversed[0]);
+        } catch (e: any) {
+            Alert.alert(
+                "Locatie ophalen mislukt",
+                `Kan de locatie niet ophalen, probeer het later opnieuw\n\n${
+                    e?.message || "Geen error bericht"
+                }`,
+                [
+                    {
+                        text: "Opnieuw proberen",
+                        onPress: () => {
+                            getLocation();
+                        },
+                    },
+                    {
+                        text: "Terug",
+                        onPress: () => {
+                            router.replace("/");
+                        },
+                    },
+                ]
+            );
+        }
+    };
+
     //? Get location & perms
     useEffect(() => {
         (async () => {
@@ -126,27 +174,7 @@ export default function Page() {
                 return;
             }
 
-            //? Get location of user
-            let location = await Location.getCurrentPositionAsync({});
-            let reversed = await Location.reverseGeocodeAsync({
-                latitude: location?.coords?.latitude,
-                longitude: location?.coords?.longitude,
-            });
-
-            if (
-                !reversed[0]?.street ||
-                !reversed[0]?.city ||
-                !reversed[0]?.region ||
-                !reversed[0]?.country
-            ) {
-                alert("Kan locatie niet ophalen");
-                router.replace("/");
-                return;
-            }
-
-            //? Set location & geoData
-            setLocation(location);
-            setGeoData(reversed[0]);
+            getLocation();
         })();
     }, []);
 
@@ -205,9 +233,11 @@ export default function Page() {
                 <TouchableOpacity
                     activeOpacity={0.8}
                     onPress={pickImage}
+                    disabled={!location}
                     style={{
                         alignItems: "center",
                         justifyContent: "center",
+                        opacity: !location ? 0.5 : 1,
                     }}
                 >
                     <Image
@@ -249,12 +279,14 @@ export default function Page() {
                     style={{
                         backgroundColor: "#E6E6E6",
                         borderRadius: 10,
+                        opacity: !location ? 0.5 : 1,
                     }}
                 >
                     <Picker
                         selectedValue={category}
                         onValueChange={(itemValue) => setCategory(itemValue)}
                         prompt="Selecteer een categorie"
+                        enabled={!!location}
                     >
                         {Object.values(EReportCategory).map((cat, i) => (
                             <Picker.Item
@@ -288,7 +320,9 @@ export default function Page() {
                         padding: 10,
                         borderRadius: 10,
                         textAlignVertical: "top",
+                        opacity: !location ? 0.5 : 1,
                     }}
+                    editable={!!location}
                 />
                 <View
                     style={{
@@ -334,11 +368,20 @@ export default function Page() {
                     backgroundColor: "#F54C4C",
                     padding: 20,
                     alignItems: "center",
-                    opacity: loading ? 0.5 : 1,
+                    opacity:
+                        loading ||
+                        !location ||
+                        !content ||
+                        !category ||
+                        !newImage
+                            ? 0.8
+                            : 1,
                 }}
                 activeOpacity={0.8}
                 onPress={onReport}
-                disabled={loading}
+                disabled={
+                    loading || !location || !content || !category || !newImage
+                }
             >
                 <Text
                     style={{
