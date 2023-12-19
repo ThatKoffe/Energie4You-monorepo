@@ -11,10 +11,12 @@ class Reports extends DataBase {
         super("reports");
     }
 
+    // get report by id
     getReport(id: string): TReport | null {
         return this.getKey(id);
     }
 
+    // get all reports
     getReports(): TReport[] {
         const data = this.getValuesFromKeys(this.getKeys());
 
@@ -26,6 +28,7 @@ class Reports extends DataBase {
         return data;
     }
 
+    // create report with data
     createReport(data: {
         description: string;
         category: EReportCategory;

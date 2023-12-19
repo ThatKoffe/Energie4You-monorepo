@@ -11,6 +11,7 @@ const mediaStorage = new MediaBase("report-media");
 
 router.post("/", async (req: any, res: any) => {
     try {
+        //? req.body is a Buffer
         const mediaValue = await mediaStorage.saveMediaToUrl(
             req.body,
             req.headers["content-type"]

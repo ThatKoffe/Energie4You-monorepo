@@ -8,7 +8,7 @@ import {
     TextInput,
     ActivityIndicator,
 } from "react-native";
-import { EReportCategory, TReport } from "../../types/reports";
+import { EReportCategory } from "../../types/reports";
 import { http } from "../../config";
 import { router } from "expo-router";
 
@@ -48,7 +48,9 @@ export default function Page() {
         let mediaUrl = "";
 
         try {
+            //? get buffer
             let buffer = new CBuffer(newImage?.base64 as any, "base64");
+            //? upload image to media url
             const { data: mediaData } = await http.post("/media", buffer, {
                 headers: {
                     "Content-Type": `image/jpeg`,
@@ -62,20 +64,28 @@ export default function Page() {
             return;
         }
 
-        let {
-            data: { report },
-        } = await http.post("/reports", {
-            content: _content,
-            imageUrl: mediaUrl,
-            category,
-            gps: {
-                lat: location?.coords?.latitude,
-                lng: location?.coords?.longitude,
-                geo: geoData,
-            },
-        });
+        try {
+            //? Create report
+            let {
+                data: { report },
+            } = await http.post("/reports", {
+                content: _content,
+                imageUrl: mediaUrl,
+                category,
+                gps: {
+                    lat: location?.coords?.latitude,
+                    lng: location?.coords?.longitude,
+                    geo: geoData,
+                },
+            });
 
-        return router.replace(`/reports/${report?.id}`);
+            //? route to page
+            return router.replace(`/reports/${report?.id}`);
+        } catch (err: any) {
+            alert(err?.response?.data?.message || err?.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     //? Pick image

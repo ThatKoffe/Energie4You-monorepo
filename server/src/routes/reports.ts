@@ -37,6 +37,7 @@ router.post("/", (req: any, res: any) => {
     try {
         const { content, imageUrl, category, gps } = req.body;
 
+        // validate data
         if (!content) return res.format(400, "Geef een omschrijving op");
 
         if (!imageUrl) return res.format(400, "Geen afbeelding gevonden");
@@ -48,6 +49,7 @@ router.post("/", (req: any, res: any) => {
 
         if (!gps) return res.format(400, "Geef een locatie op");
 
+        // create report
         const reportData = report.createReport({
             description: content,
             category,

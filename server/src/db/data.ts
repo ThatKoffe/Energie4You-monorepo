@@ -21,6 +21,7 @@ export default class DataBase {
     private initStorage(): void {
         const storagePath = this.getStoragePath();
 
+        // check if storage path exists
         if (!fs.existsSync(storagePath)) {
             fs.writeFileSync(storagePath, "{}");
         }
@@ -44,6 +45,7 @@ export default class DataBase {
         return data[key];
     }
 
+    // set key and value
     setKey(key: string, value: any): any {
         const data = this.readStorage();
 
@@ -54,6 +56,7 @@ export default class DataBase {
         return data;
     }
 
+    // delete key
     deleteKey(key: string): any {
         const data = this.readStorage();
 
@@ -64,11 +67,13 @@ export default class DataBase {
         return data;
     }
 
+    // get all keys from storage
     getKeys(): string[] {
         const data = this.readStorage();
         return Object.keys(data);
     }
 
+    // get all values from storage
     getValuesFromKeys(keys: string[]): any[] {
         const data = this.readStorage();
         const values: any[] = [];
