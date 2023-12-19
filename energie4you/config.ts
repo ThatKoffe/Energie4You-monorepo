@@ -4,7 +4,7 @@ import axios from "axios";
  * API URL
  * Change this to your API URL
  */
-export const API_URL = "http://192.168.68.107:3000";
+export const API_URL = "https://e4u-api.projxd.com";
 
 /**
  * HTTP client
